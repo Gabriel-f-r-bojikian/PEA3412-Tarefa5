@@ -1,12 +1,14 @@
-function [temp_iaL_iedF, temp_ibL_iedF, temp_icL_iedF, temp_iaR_iedF, temp_ibR_iedF, temp_icR_iedF ] = adquire_sinal(filename)
-  matriz = csvread([filename '.csv']);
+function [temp_iaL_iedF, temp_ibL_iedF, temp_icL_iedF, temp_VAfase_iedF, temp_VBfase_iedF, temp_VCfase_iedF, SinalTrip ] = adquire_sinal(filename)
+  matriz = dlmread( [filename '.csv'], ',', 4, 0);
+
   tempo = matriz(:,1);  % Sinal temporal no arquivo
   IAL   = matriz(:,2);  % Corrente da fase A no terminal local
   IBL   = matriz(:,3);  % Corrente da fase B no terminal local
   ICL   = matriz(:,4);  % Corrente da fase C no terminal local
-  IAR   = matriz(:,5);  % Corrente da fase A no terminal remoto
-  IBR   = matriz(:,6);  % Corrente da fase B no terminal remoto
-  ICR   = matriz(:,7);  % Corrente da fase C no terminal remoto
+  VAfase   = matriz(:,5);  % Corrente da fase A no terminal remoto
+  VBfase   = matriz(:,6);  % Corrente da fase B no terminal remoto
+  VCfase   = matriz(:,7);  % Corrente da fase C no terminal remoto
+  SinalTrip   = matriz(:,8);  % Corrente da fase C no terminal remoto
   % ------------------------------------------------------------------------------
   % 3. Configuracao do rele de protecao
   % ------------------------------------------------------------------------------
@@ -20,9 +22,9 @@ function [temp_iaL_iedF, temp_ibL_iedF, temp_icL_iedF, temp_iaR_iedF, temp_ibR_i
   iaL_ied    = zeros(1,tambuffer); % Tamanho do buffer para corrente na fase A do terminal local
   ibL_ied    = zeros(1,tambuffer); % Tamanho do buffer para corrente na fase B do terminal local 
   icL_ied    = zeros(1,tambuffer); % Tamanho do buffer para corrente na fase C do terminal local
-  iaR_ied    = zeros(1,tambuffer); % Tamanho do buffer para corrente na fase A do terminal remoto
-  ibR_ied    = zeros(1,tambuffer); % Tamanho do buffer para corrente na fase B do terminal remoto 
-  icR_ied    = zeros(1,tambuffer); % Tamanho do buffer para corrente na fase C do terminal remoto
+  VAfase_ied    = zeros(1,tambuffer); % Tamanho do buffer para corrente na fase A do terminal remoto
+  VBfase_ied    = zeros(1,tambuffer); % Tamanho do buffer para corrente na fase B do terminal remoto 
+  VCfase_ied    = zeros(1,tambuffer); % Tamanho do buffer para corrente na fase C do terminal remoto
   % ------------------------------------------------------------------------------
   % 3.2 Especificacao do filtro de entrada do IED
   %     a) Dados do filtro Butterworth
@@ -50,15 +52,15 @@ function [temp_iaL_iedF, temp_ibL_iedF, temp_icL_iedF, temp_iaR_iedF, temp_ibR_i
   % IALf = filter(num, den, IAL); % Filtragem do sinal de corrente da fase A do terminal local
   % IBLf = filter(num, den, IBL); % Filtragem do sinal de corrente da fase B do terminal local
   % ICLf = filter(num, den, ICL); % Filtragem do sinal de corrente da fase C do terminal local
-  % IARf = filter(num, den, IAR); % Filtragem do sinal de corrente da fase A do terminal remoto
-  % IBRf = filter(num, den, IBR); % Filtragem do sinal de corrente da fase B do terminal remoto
-  % ICRf = filter(num, den, ICR); % Filtragem do sinal de corrente da fase C do terminal remoto
+  % VAfasef = filter(num, den, VAfase); % Filtragem do sinal de corrente da fase A do terminal remoto
+  % VBfasef = filter(num, den, VBfase); % Filtragem do sinal de corrente da fase B do terminal remoto
+  % VCfasef = filter(num, den, VCfase); % Filtragem do sinal de corrente da fase C do terminal remoto
   IALf = filtro_analogico(0, IAL, tempo, 2*pi*fp, 2*pi*fs, Amin, Amax); % Filtragem do sinal de corrente da fase A do terminal local
   IBLf = filtro_analogico(0, IBL, tempo, 2*pi*fp, 2*pi*fs, Amin, Amax); % Filtragem do sinal de corrente da fase B do terminal local
   ICLf = filtro_analogico(0, ICL, tempo, 2*pi*fp, 2*pi*fs, Amin, Amax); % Filtragem do sinal de corrente da fase C do terminal local
-  IARf = filtro_analogico(0, IAR, tempo, 2*pi*fp, 2*pi*fs, Amin, Amax); % Filtragem do sinal de corrente da fase A do terminal remoto
-  IBRf = filtro_analogico(0, IBR, tempo, 2*pi*fp, 2*pi*fs, Amin, Amax); % Filtragem do sinal de corrente da fase B do terminal remoto
-  ICRf = filtro_analogico(0, ICR, tempo, 2*pi*fp, 2*pi*fs, Amin, Amax); % Filtragem do sinal de corrente da fase C do terminal remoto
+  VAfasef = filtro_analogico(0, VAfase, tempo, 2*pi*fp, 2*pi*fs, Amin, Amax); % Filtragem do sinal de corrente da fase A do terminal remoto
+  VBfasef = filtro_analogico(0, VBfase, tempo, 2*pi*fp, 2*pi*fs, Amin, Amax); % Filtragem do sinal de corrente da fase B do terminal remoto
+  VCfasef = filtro_analogico(0, VCfase, tempo, 2*pi*fp, 2*pi*fs, Amin, Amax); % Filtragem do sinal de corrente da fase C do terminal remoto
   %    b) Reamostragem do sinal (como o sinal original possui 32 amostras por ciclo, 
   %       basta fazer a decimacao convencional, caso contrario seria necessario o resample
   %       com alguma tecnica de PDS, do tipo "zero padding")
@@ -69,9 +71,10 @@ function [temp_iaL_iedF, temp_ibL_iedF, temp_icL_iedF, temp_iaR_iedF, temp_ibR_i
       IALfr(cont)  = IALf(aux);
       IBLfr(cont)  = IBLf(aux); 
       ICLfr(cont)  = ICLf(aux);
-      IARfr(cont)  = IARf(aux);
-      IBRfr(cont)  = IBRf(aux); 
-      ICRfr(cont)  = ICRf(aux);
+      VAfasefr(cont)  = VAfasef(aux);
+      VBfasefr(cont)  = VBfasef(aux); 
+      VCfasefr(cont)  = VCfasef(aux);
+      SinalTripfr(cont) = SinalTrip(aux);
       cont         = cont + 1;
     end
   end
@@ -93,9 +96,9 @@ function [temp_iaL_iedF, temp_ibL_iedF, temp_icL_iedF, temp_iaR_iedF, temp_ibR_i
     iaL_ied(posbuffer) = IALfr(tam); % Buffer de corrente da fase A no terminal Local
     ibL_ied(posbuffer) = IBLfr(tam); % Buffer de corrente da fase B no terminal Local
     icL_ied(posbuffer) = ICLfr(tam); % Buffer de corrente da fase C no terminal Local
-    iaR_ied(posbuffer) = IARfr(tam); % Buffer de corrente da fase A no terminal Remoto
-    ibR_ied(posbuffer) = IBRfr(tam); % Buffer de corrente da fase B no terminal Remoto
-    icR_ied(posbuffer) = ICRfr(tam); % Buffer de corrente da fase C no terminal Remoto
+    VAfase_ied(posbuffer) = VAfasefr(tam); % Buffer de corrente da fase A no terminal Remoto
+    VBfase_ied(posbuffer) = VBfasefr(tam); % Buffer de corrente da fase B no terminal Remoto
+    VCfase_ied(posbuffer) = VCfasefr(tam); % Buffer de corrente da fase C no terminal Remoto
     % ----------------------------------------------------------------------------
     % 4.2 Monta o vetor de correntes para c�lculo de Fourier
     % ----------------------------------------------------------------------------
@@ -103,16 +106,16 @@ function [temp_iaL_iedF, temp_ibL_iedF, temp_icL_iedF, temp_iaR_iedF, temp_ibR_i
       iaL_iedF(posbuffer) = fourier([iaL_ied(tambuffer-(na-posbuffer)+1:tambuffer) iaL_ied(1:posbuffer)],na,fa,f);
       ibL_iedF(posbuffer) = fourier([ibL_ied(tambuffer-(na-posbuffer)+1:tambuffer) ibL_ied(1:posbuffer)],na,fa,f);
       icL_iedF(posbuffer) = fourier([icL_ied(tambuffer-(na-posbuffer)+1:tambuffer) icL_ied(1:posbuffer)],na,fa,f);
-      iaR_iedF(posbuffer) = fourier([iaR_ied(tambuffer-(na-posbuffer)+1:tambuffer) iaR_ied(1:posbuffer)],na,fa,f);
-      ibR_iedF(posbuffer) = fourier([ibR_ied(tambuffer-(na-posbuffer)+1:tambuffer) ibR_ied(1:posbuffer)],na,fa,f);
-      icR_iedF(posbuffer) = fourier([icR_ied(tambuffer-(na-posbuffer)+1:tambuffer) icR_ied(1:posbuffer)],na,fa,f);
+      VAfase_iedF(posbuffer) = fourier([VAfase_ied(tambuffer-(na-posbuffer)+1:tambuffer) VAfase_ied(1:posbuffer)],na,fa,f);
+      VBfase_iedF(posbuffer) = fourier([VBfase_ied(tambuffer-(na-posbuffer)+1:tambuffer) VBfase_ied(1:posbuffer)],na,fa,f);
+      VCfase_iedF(posbuffer) = fourier([VCfase_ied(tambuffer-(na-posbuffer)+1:tambuffer) VCfase_ied(1:posbuffer)],na,fa,f);
     else
       iaL_iedF(posbuffer) = fourier(iaL_ied(posbuffer-na+1:posbuffer),na,fa,f);
       ibL_iedF(posbuffer) = fourier(ibL_ied(posbuffer-na+1:posbuffer),na,fa,f);
       icL_iedF(posbuffer) = fourier(icL_ied(posbuffer-na+1:posbuffer),na,fa,f);
-      iaR_iedF(posbuffer) = fourier(iaR_ied(posbuffer-na+1:posbuffer),na,fa,f);
-      ibR_iedF(posbuffer) = fourier(ibR_ied(posbuffer-na+1:posbuffer),na,fa,f);
-      icR_iedF(posbuffer) = fourier(icR_ied(posbuffer-na+1:posbuffer),na,fa,f);
+      VAfase_iedF(posbuffer) = fourier(VAfase_ied(posbuffer-na+1:posbuffer),na,fa,f);
+      VBfase_iedF(posbuffer) = fourier(VBfase_ied(posbuffer-na+1:posbuffer),na,fa,f);
+      VCfase_iedF(posbuffer) = fourier(VCfase_ied(posbuffer-na+1:posbuffer),na,fa,f);
     end
     % fprintf('Amostra: %03.f de %03.f amostras\n',tam, length(tempor));
     % ----------------------------------------------------------------------------
@@ -121,9 +124,9 @@ function [temp_iaL_iedF, temp_ibL_iedF, temp_icL_iedF, temp_iaR_iedF, temp_ibR_i
     temp_iaL_iedF(tam) = iaL_iedF(posbuffer);
     temp_ibL_iedF(tam) = ibL_iedF(posbuffer);
     temp_icL_iedF(tam) = icL_iedF(posbuffer);
-    temp_iaR_iedF(tam) = iaR_iedF(posbuffer);
-    temp_ibR_iedF(tam) = ibR_iedF(posbuffer);
-    temp_icR_iedF(tam) = icR_iedF(posbuffer);
+    temp_VAfase_iedF(tam) = VAfase_iedF(posbuffer);
+    temp_VBfase_iedF(tam) = VBfase_iedF(posbuffer);
+    temp_VCfase_iedF(tam) = VCfase_iedF(posbuffer);
     % ----------------------------------------------------------------------------
     posbuffer = posbuffer + 1;
     tam       = tam + 1;
@@ -136,27 +139,32 @@ function [temp_iaL_iedF, temp_ibL_iedF, temp_icL_iedF, temp_iaR_iedF, temp_ibR_i
   neutroLocal = IALfr + IBLfr + ICLfr;
 
   figure;
-  subplot(4, 1, 1);
+  subplot(5, 1, 1);
   plot(IALfr,'r');
   hold on
   plot(sqrt(2)*[temp_iaL_iedF.magnitude],'k');
   title(["Fase A Local - " filename]);
 
-  subplot(4, 1, 2);
+  subplot(5, 1, 2);
   plot(IBLfr,'g');
   hold on
   plot(sqrt(2)*[temp_ibL_iedF.magnitude],'k');
   title(["Fase B Local - " filename]);
 
-  subplot(4, 1, 3);
+  subplot(5, 1, 3);
   plot(ICLfr,'b');
   hold on
   plot(sqrt(2)*[temp_icL_iedF.magnitude],'k');
   title(["Fase C Local - " filename]);
 
-  subplot(4, 1, 4);
+  subplot(5, 1, 4);
   plot(neutroLocal);
   title(["Corrente de neutro Local - " filename]);
+  
+  subplot(5, 1, 5);
+  plot(SinalTripfr);
+  title(["Sinal de Trip - " filename]);
+  ylim([0, 1.1])
   
   % Plotando os gráficos dos sinais remotos
   
@@ -164,21 +172,21 @@ function [temp_iaL_iedF, temp_ibL_iedF, temp_icL_iedF, temp_iaR_iedF, temp_ibR_i
 
   figure;
   subplot(4, 1, 1);
-  plot(IARfr,'r');
+  plot(VAfasefr,'r');
   hold on
-  plot(sqrt(2)*[temp_iaR_iedF.magnitude],'k');
+  plot(sqrt(2)*[temp_VAfase_iedF.magnitude],'k');
   title(["Fase A Remota - " filename]);
 
   subplot(4, 1, 2);
-  plot(IBRfr,'g');
+  plot(VBfasefr,'g');
   hold on
-  plot(sqrt(2)*[temp_ibR_iedF.magnitude],'k');
+  plot(sqrt(2)*[temp_VBfase_iedF.magnitude],'k');
   title(["Fase B Remota- " filename]);
 
   subplot(4, 1, 3);
-  plot(ICRfr,'b');
+  plot(VCfasefr,'b');
   hold on
-  plot(sqrt(2)*[temp_icR_iedF.magnitude],'k');
+  plot(sqrt(2)*[temp_VCfase_iedF.magnitude],'k');
   title(["Fase C Remota - " filename]);
 
   subplot(4, 1, 4);

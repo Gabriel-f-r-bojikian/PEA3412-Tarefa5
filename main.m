@@ -18,9 +18,9 @@ fclose all;
 clear all;
 clc;
 
-filename = '';
+filename = 'simulacoes/COLRGV_2017_11_13_SECol';
 
-[ iaLocal, ibLocal, icLocal, iaRemoto, ibRemoto, icRemoto ] = adquire_sinal(filename);
+[ iaLocal, ibLocal, icLocal, iaRemoto, ibRemoto, icRemoto, SinalTrip ] = adquire_sinal(filename);
 
 [zeroLocal, diretaLocal, inversaLocal] = calcula_componentes_simetricas(iaLocal, ibLocal, icLocal);
 [zeroRemoto, diretaRemoto, inversaRemoto] = calcula_componentes_simetricas(iaRemoto, ibRemoto, icRemoto);
