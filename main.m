@@ -24,3 +24,6 @@ filename = '';
 
 [zeroLocal, diretaLocal, inversaLocal] = calcula_componentes_simetricas(iaLocal, ibLocal, icLocal);
 [zeroRemoto, diretaRemoto, inversaRemoto] = calcula_componentes_simetricas(iaRemoto, ibRemoto, icRemoto);
+
+plota_componentes_simetricas(zeroLocal, diretaLocal, inversaLocal, ["Local - ", filename]);
+plota_componentes_simetricas(zeroRemoto, diretaRemoto, inversaRemoto, ["Remoto - ", filename]);
