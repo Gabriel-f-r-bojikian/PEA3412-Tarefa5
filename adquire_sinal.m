@@ -1,5 +1,5 @@
 function [temp_iaL_iedF, temp_ibL_iedF, temp_icL_iedF, temp_iaR_iedF, temp_ibR_iedF, temp_icR_iedF ] = adquire_sinal(filename)
-  run(['simulacoes/' filename '.m']);
+  matriz = csvread([filename '.csv']);
   tempo = matriz(:,1);  % Sinal temporal no arquivo
   IAL   = matriz(:,2);  % Corrente da fase A no terminal local
   IBL   = matriz(:,3);  % Corrente da fase B no terminal local
