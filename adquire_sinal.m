@@ -102,7 +102,7 @@ function [temp_iaL_iedF, temp_ibL_iedF, temp_icL_iedF, temp_VAfase_iedF, temp_VB
     % ----------------------------------------------------------------------------
     % 4.2 Monta o vetor de correntes para c�lculo de Fourier
     % ----------------------------------------------------------------------------
-    if posbuffer<na    
+    if posbuffer<na  
       iaL_iedF(posbuffer) = fourier([iaL_ied(tambuffer-(na-posbuffer)+1:tambuffer) iaL_ied(1:posbuffer)],na,fa,f);
       ibL_iedF(posbuffer) = fourier([ibL_ied(tambuffer-(na-posbuffer)+1:tambuffer) ibL_ied(1:posbuffer)],na,fa,f);
       icL_iedF(posbuffer) = fourier([icL_ied(tambuffer-(na-posbuffer)+1:tambuffer) icL_ied(1:posbuffer)],na,fa,f);
