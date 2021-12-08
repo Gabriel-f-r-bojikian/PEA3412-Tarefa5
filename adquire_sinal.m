@@ -136,60 +136,50 @@ function [temp_iaL_iedF, temp_ibL_iedF, temp_icL_iedF, temp_VAfase_iedF, temp_VB
 
   disp(["Lendo sinais de corrente do arquivo " filename ".csv: "]);
   
+  % Plotando os graficos do sinal de corrente
   neutroLocal = IALfr + IBLfr + ICLfr;
 
   figure;
-  subplot(5, 1, 1);
+  subplot(4, 1, 1);
   plot(IALfr,'r');
   hold on
   plot(sqrt(2)*[temp_iaL_iedF.magnitude],'k');
-  title(["Fase A Local - " filename]);
+  title(["Corrente de linha A - " filename]);
 
-  subplot(5, 1, 2);
+  subplot(4, 1, 2);
   plot(IBLfr,'g');
   hold on
   plot(sqrt(2)*[temp_ibL_iedF.magnitude],'k');
-  title(["Fase B Local - " filename]);
+  title(["Corrente de linha B - " filename]);
 
-  subplot(5, 1, 3);
+  subplot(4, 1, 3);
   plot(ICLfr,'b');
   hold on
   plot(sqrt(2)*[temp_icL_iedF.magnitude],'k');
-  title(["Fase C Local - " filename]);
+  title(["Corrente de linha C - " filename]);
 
-  subplot(5, 1, 4);
+  subplot(4, 1, 4);
   plot(neutroLocal);
-  title(["Corrente de neutro Local - " filename]);
+  title(["Corrente de neutro - " filename]);
   
-  subplot(5, 1, 5);
-  plot(SinalTripfr);
-  title(["Sinal de Trip - " filename]);
-  ylim([0, 1.1])
-  
-  % Plotando os gráficos dos sinais remotos
-  
-  neutroRemoto = IALfr + IBLfr + ICLfr;
+  % Plotando os gráficos dos sinais de tensao
 
   figure;
-  subplot(4, 1, 1);
+  subplot(3, 1, 1);
   plot(VAfasefr,'r');
   hold on
   plot(sqrt(2)*[temp_VAfase_iedF.magnitude],'k');
-  title(["Fase A Remota - " filename]);
+  title(["Tensão de fase A - " filename]);
 
-  subplot(4, 1, 2);
+  subplot(3, 1, 2);
   plot(VBfasefr,'g');
   hold on
   plot(sqrt(2)*[temp_VBfase_iedF.magnitude],'k');
-  title(["Fase B Remota- " filename]);
+  title(["Tensão de fase B - " filename]);
 
-  subplot(4, 1, 3);
+  subplot(3, 1, 3);
   plot(VCfasefr,'b');
   hold on
   plot(sqrt(2)*[temp_VCfase_iedF.magnitude],'k');
-  title(["Fase C Remota - " filename]);
-
-  subplot(4, 1, 4);
-  plot(neutroRemoto);
-  title(["Corrente de neutro Remota - " filename]);
+  title(["Tensão de fase C - " filename]);
 endfunction
